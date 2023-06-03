@@ -76,7 +76,7 @@ function makeSmartMove(gameState: GameState): Direction {
 	}
 	
 
-	console.log(upScore, downScore, leftScore, rightScore)
+	//console.log(upScore, downScore, leftScore, rightScore)
 	const chosenMove = Math.max(upScore, downScore, leftScore, rightScore)
 
 	if (upScore == chosenMove) {

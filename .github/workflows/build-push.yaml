@@ -6,7 +6,7 @@ on:
       - release
 
 env:
-  TEAM_IMAGE: client-team
+  TEAM_IMAGE: teamname_hackathon2
 
 jobs:
     build-and-deploy-client:
