@@ -29,67 +29,84 @@ function makeMove(game: GameState): Direction {
     
 }
 
+interface TotalDirectionScore {
+	isBoundary: boolean;
+	score: number;
+	direction: Direction
+}
+
+
 function makeSmartMove(gameState: GameState): Direction {
+
 	const myCoordinate = getMyCurrentPosition(gameState);
 	const takenCoordinates : Coordinate[] = gameState.players.flatMap( el => el.coordinates)
 
 	const horizontalLine = takenCoordinates.filter(el => el.y == myCoordinate.y).map(el => el.x)
 	
 	const leftPoints = horizontalLine.filter(el => el < myCoordinate.x)
-	let leftScore: number
+	const directionPoints : TotalDirectionScore[] = [];
+	let leftScore: TotalDirectionScore
+	leftScore.direction = Direction.LEFT
 	if (leftPoints.length > 0) {
 		const leftPoint = Math.max(...leftPoints)
-		leftScore = Math.abs(myCoordinate.x - leftPoint)
+		leftScore.score = Math.abs(myCoordinate.x - leftPoint)
+		leftScore.isBoundary = false
 	} else {
-		leftScore = myCoordinate.x
+		leftScore.score = myCoordinate.x
+		leftScore.isBoundary = true
 	}
+	directionPoints.push(leftScore)
 	
 
 	const rightPoints = horizontalLine.filter(el => el > myCoordinate.x)
-	let rightScore: number
+	let rightScore: TotalDirectionScore
 	if (rightPoints.length > 0) {
 		const rightPoint = Math.min(...rightPoints)
-		rightScore = Math.abs(myCoordinate.x - rightPoint)
+		rightScore.score = Math.abs(myCoordinate.x - rightPoint)
+		rightScore.isBoundary = false
 	} else {
-		rightScore = gameState.width - myCoordinate.x
+		rightScore.score = gameState.width - myCoordinate.x
+		rightScore.isBoundary = true
 	}
-	
+	directionPoints.push(rightScore)
 
 	const verticalLine = takenCoordinates.filter(el => el.x == myCoordinate.x).map(el => el.y)
 
 	const upPoints = verticalLine.filter(el => el < myCoordinate.y)
-	let upScore: number
+	let upScore: TotalDirectionScore
 	if (upPoints.length > 0) {
 		const upPoint = Math.max(...upPoints)
-		upScore = Math.abs(myCoordinate.y - upPoint)
+		upScore.score = Math.abs(myCoordinate.y - upPoint)
+		upScore.isBoundary = false
 	} else {
-		upScore = myCoordinate.y
+		upScore.score = myCoordinate.y
+		upScore.isBoundary = true
 	}
+	directionPoints.push(upScore)
 	
 	const downPoints = verticalLine.filter(el => el > myCoordinate.y)
-	let downScore: number
+	let downScore: TotalDirectionScore
 	if (downPoints.length > 0) {
 		const downPoint = Math.min(...downPoints)
-		downScore = Math.abs(myCoordinate.y - downPoint)
+		downScore.score = Math.abs(myCoordinate.y - downPoint)
+		downScore.isBoundary = false
 	} else {
-		downScore = gameState.height - myCoordinate.y
+		downScore.score = gameState.height - myCoordinate.y
+		downScore.isBoundary = true
 	}
+	directionPoints.push(downScore)
 	
 
 	console.log(upScore, downScore, leftScore, rightScore)
-	const chosenMove = Math.max(upScore, downScore, leftScore, rightScore)
+	const chosenMove = Math.max(upScore.score, downScore.score, leftScore.score, rightScore.score)
+	
+	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true).sort( (a, b) => b.score - a.score) // boundary points
+	const maxScorePoint = directionPoints.find(el => el.score == chosenMove) // previous logic max
 
-	if (upScore == chosenMove) {
-		return Direction.UP
-	}
-	if (downScore == chosenMove) {
-		return Direction.DOWN
-	}
-	if (leftScore == chosenMove) {
-		return Direction.LEFT
-	}
-	if (rightScore == chosenMove) {
-		return Direction.RIGHT
+	if (isBoundaryPoints.length > 0) {
+		return isBoundaryPoints[0].direction
+	} else {
+		return maxScorePoint.direction
 	}
 
 	return Direction.DOWN
