@@ -45,8 +45,11 @@ function makeSmartMove(gameState: GameState): Direction {
 	
 	const leftPoints = horizontalLine.filter(el => el < myCoordinate.x)
 	const directionPoints : TotalDirectionScore[] = [];
-	let leftScore: TotalDirectionScore
-	leftScore.direction = Direction.LEFT
+	let leftScore: TotalDirectionScore = {
+		isBoundary: false,
+		score: 0,
+		direction: Direction.LEFT
+	}
 	if (leftPoints.length > 0) {
 		const leftPoint = Math.max(...leftPoints)
 		leftScore.score = Math.abs(myCoordinate.x - leftPoint)
@@ -59,7 +62,11 @@ function makeSmartMove(gameState: GameState): Direction {
 	
 
 	const rightPoints = horizontalLine.filter(el => el > myCoordinate.x)
-	let rightScore: TotalDirectionScore
+	let rightScore: TotalDirectionScore = {
+		isBoundary: false,
+		score: 0,
+		direction: Direction.RIGHT
+	}
 	if (rightPoints.length > 0) {
 		const rightPoint = Math.min(...rightPoints)
 		rightScore.score = Math.abs(myCoordinate.x - rightPoint)
@@ -73,7 +80,11 @@ function makeSmartMove(gameState: GameState): Direction {
 	const verticalLine = takenCoordinates.filter(el => el.x == myCoordinate.x).map(el => el.y)
 
 	const upPoints = verticalLine.filter(el => el < myCoordinate.y)
-	let upScore: TotalDirectionScore
+	let upScore: TotalDirectionScore = {
+		isBoundary: false,
+		score: 0,
+		direction: Direction.UP
+	}
 	if (upPoints.length > 0) {
 		const upPoint = Math.max(...upPoints)
 		upScore.score = Math.abs(myCoordinate.y - upPoint)
@@ -85,7 +96,11 @@ function makeSmartMove(gameState: GameState): Direction {
 	directionPoints.push(upScore)
 	
 	const downPoints = verticalLine.filter(el => el > myCoordinate.y)
-	let downScore: TotalDirectionScore
+	let downScore: TotalDirectionScore = {
+		isBoundary: false,
+		score: 0,
+		direction: Direction.DOWN
+	}
 	if (downPoints.length > 0) {
 		const downPoint = Math.min(...downPoints)
 		downScore.score = Math.abs(myCoordinate.y - downPoint)
