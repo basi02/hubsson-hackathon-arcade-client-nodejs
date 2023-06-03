@@ -112,12 +112,14 @@ function makeSmartMove(gameState: GameState): Direction {
 	directionPoints.push(downScore)
 	
 
-	console.log(upScore, downScore, leftScore, rightScore)
 	const chosenMove = Math.max(upScore.score, downScore.score, leftScore.score, rightScore.score)
 	
-	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true && el.score > 1).sort( (a, b) => b.score - a.score) // boundary points
+	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true && el.score > chosenMove / 2).sort( (a, b) => b.score - a.score) // boundary points
+	console.log("boundary points:\n")
+	console.log(isBoundaryPoints)
 	const maxScorePoint = directionPoints.find(el => el.score == chosenMove) // previous logic max
-
+	console.log("\nmax score point:\n")
+	console.log(isBoundaryPoints)
 	if (isBoundaryPoints.length > 0) {
 		return isBoundaryPoints[0].direction
 	} else {
