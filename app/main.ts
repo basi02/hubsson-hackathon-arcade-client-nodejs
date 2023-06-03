@@ -13,7 +13,7 @@ gameClient.onGameStart((): void => {
 gameClient.onGameUpdate((gameState: GameState): void => {
 	console.log("Game State received");
  	// const direction = makeMove(gameState)
-	 const direction = makeSmartMove(gameState)
+	const direction = makeSmartMove(gameState)
 	gameClient.sendAction(direction, gameState.iteration);
 });
 
@@ -115,7 +115,7 @@ function makeSmartMove(gameState: GameState): Direction {
 	console.log(upScore, downScore, leftScore, rightScore)
 	const chosenMove = Math.max(upScore.score, downScore.score, leftScore.score, rightScore.score)
 	
-	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true).sort( (a, b) => b.score - a.score) // boundary points
+	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true && el.score > 1).sort( (a, b) => b.score - a.score) // boundary points
 	const maxScorePoint = directionPoints.find(el => el.score == chosenMove) // previous logic max
 
 	if (isBoundaryPoints.length > 0) {
