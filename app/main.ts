@@ -32,8 +32,10 @@ function makeMove(game: GameState): Direction {
 interface TotalDirectionScore {
 	isBoundary: boolean;
 	score: number;
-	direction: Direction
+	direction: Direction;
+	futureActionsCount: number;
 }
+
 
 
 function makeSmartMove(gameState: GameState): Direction {
@@ -48,7 +50,8 @@ function makeSmartMove(gameState: GameState): Direction {
 	let leftScore: TotalDirectionScore = {
 		isBoundary: false,
 		score: 0,
-		direction: Direction.LEFT
+		direction: Direction.LEFT,
+		futureActionsCount: 0,
 	}
 	if (leftPoints.length > 0) {
 		const leftPoint = Math.max(...leftPoints)
@@ -58,6 +61,14 @@ function makeSmartMove(gameState: GameState): Direction {
 		leftScore.score = myCoordinate.x
 		leftScore.isBoundary = true
 	}
+	
+	let nextGameState = gameState;
+	nextGameState.players.find(el => el.playerId == config.id).coordinates.push({
+		x: myCoordinate.x - 1,
+		y: myCoordinate.y
+	})
+	let numberOfPossibleMoves = getPossibleMoves(nextGameState).length
+	leftScore.futureActionsCount = numberOfPossibleMoves
 	directionPoints.push(leftScore)
 	
 
@@ -65,7 +76,8 @@ function makeSmartMove(gameState: GameState): Direction {
 	let rightScore: TotalDirectionScore = {
 		isBoundary: false,
 		score: 0,
-		direction: Direction.RIGHT
+		direction: Direction.RIGHT,
+		futureActionsCount: 0,
 	}
 	if (rightPoints.length > 0) {
 		const rightPoint = Math.min(...rightPoints)
@@ -75,6 +87,13 @@ function makeSmartMove(gameState: GameState): Direction {
 		rightScore.score = gameState.width - myCoordinate.x
 		rightScore.isBoundary = true
 	}
+	nextGameState = gameState;
+	nextGameState.players.find(el => el.playerId == config.id).coordinates.push({
+		x: myCoordinate.x + 1,
+		y: myCoordinate.y
+	})
+	numberOfPossibleMoves = getPossibleMoves(nextGameState).length
+	rightScore.futureActionsCount = numberOfPossibleMoves
 	directionPoints.push(rightScore)
 
 	const verticalLine = takenCoordinates.filter(el => el.x == myCoordinate.x).map(el => el.y)
@@ -83,7 +102,8 @@ function makeSmartMove(gameState: GameState): Direction {
 	let upScore: TotalDirectionScore = {
 		isBoundary: false,
 		score: 0,
-		direction: Direction.UP
+		direction: Direction.UP,
+		futureActionsCount: 0,
 	}
 	if (upPoints.length > 0) {
 		const upPoint = Math.max(...upPoints)
@@ -93,13 +113,22 @@ function makeSmartMove(gameState: GameState): Direction {
 		upScore.score = myCoordinate.y
 		upScore.isBoundary = true
 	}
+
+	nextGameState = gameState;
+	nextGameState.players.find(el => el.playerId == config.id).coordinates.push({
+		x: myCoordinate.x,
+		y: myCoordinate.y - 1
+	})
+	numberOfPossibleMoves = getPossibleMoves(nextGameState).length
+	upScore.futureActionsCount = numberOfPossibleMoves
 	directionPoints.push(upScore)
 	
 	const downPoints = verticalLine.filter(el => el > myCoordinate.y)
 	let downScore: TotalDirectionScore = {
 		isBoundary: false,
 		score: 0,
-		direction: Direction.DOWN
+		direction: Direction.DOWN,
+		futureActionsCount: 0,
 	}
 	if (downPoints.length > 0) {
 		const downPoint = Math.min(...downPoints)
@@ -109,6 +138,14 @@ function makeSmartMove(gameState: GameState): Direction {
 		downScore.score = gameState.height - myCoordinate.y
 		downScore.isBoundary = true
 	}
+
+	nextGameState = gameState;
+	nextGameState.players.find(el => el.playerId == config.id).coordinates.push({
+		x: myCoordinate.x,
+		y: myCoordinate.y + 1
+	})
+	numberOfPossibleMoves = getPossibleMoves(nextGameState).length
+	downScore.futureActionsCount = numberOfPossibleMoves
 	directionPoints.push(downScore)
 	
 
@@ -118,16 +155,25 @@ function makeSmartMove(gameState: GameState): Direction {
 	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true && el.score > chosenMove / 2).sort( (a, b) => b.score - a.score) // boundary points
 	console.log("boundary points:\n")
 	console.log(isBoundaryPoints)
-	const maxScorePoint = directionPoints.find(el => el.score == chosenMove) // previous logic max
+	const maxScorePoint = directionPoints.sort((a,b) => {
+		//if (a.futureActionsCount == b.futureActionsCount) {
+			return b.score - a.score
+		//} else {
+		//	return b.futureActionsCount - a.futureActionsCount
+		//}
+	} ) 
+
+	const safeMoves = maxScorePoint.filter(el => el.futureActionsCount > 1)
+
 	console.log("\nmax score point:\n")
 	console.log(isBoundaryPoints)
 	if (isBoundaryPoints.length > 0) {
 		return isBoundaryPoints[0].direction
+	} else if (safeMoves.length > 0) {
+		return safeMoves[0].direction
 	} else {
-		return maxScorePoint.direction
+		return maxScorePoint[0].direction
 	}
-
-	return Direction.DOWN
 }
 
 function getPossibleMoves(gameState: GameState): Direction[] {
