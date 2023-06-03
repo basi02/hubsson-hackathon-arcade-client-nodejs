@@ -155,7 +155,6 @@ function makeSmartMove(gameState: GameState): Direction {
 	
 
 	const isBoundaryPoints = directionPoints.filter(el => el.isBoundary == true && el.score > chosenMove / 2).sort( (a, b) => b.score - a.score) // boundary points
-
 	const maxScorePoint = directionPoints.sort((a,b) => {
 		//if (a.futureActionsCount == b.futureActionsCount) {
 			return b.score - a.score
